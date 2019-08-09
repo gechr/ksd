@@ -2,7 +2,7 @@ install:
 	go install
 
 lint:
-	golangci-lint run  --enable-all
+	golangci-lint run --enable-all
 
 update:
 	@rm -f -- go.sum
