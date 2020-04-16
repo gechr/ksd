@@ -7,7 +7,7 @@ If [`bat`](https://github.com/sharkdp/bat) is installed, it will automatically b
 ## Installation
 
 ```sh
-$ go get -u github.com/gechr/ksd
+$ GO111MODULE=on go get github.com/gechr/ksd@latest
 ```
 
 ## Usage
