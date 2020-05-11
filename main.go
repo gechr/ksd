@@ -8,7 +8,9 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/ghodss/yaml"
 	"github.com/mattn/go-isatty"
@@ -53,10 +55,28 @@ func parse(r io.Reader) string {
 	return string(bytes)
 }
 
+func isASCII(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] > unicode.MaxASCII {
+			return false
+		}
+	}
+	return true
+}
+
+func toStringData(b []byte) string {
+	s := string(b)
+	if !isASCII(s) {
+		s = strconv.QuoteToASCII(s)
+		return s[1 : len(s)-1]
+	}
+	return s
+}
+
 func decode(s *v1.Secret) {
 	s.StringData = make(map[string]string, len(s.Data))
 	for k, v := range s.Data {
-		s.StringData[k] = string(v)
+		s.StringData[k] = toStringData(v)
 		delete(s.Data, k)
 	}
 }
