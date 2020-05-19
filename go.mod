@@ -9,9 +9,11 @@ require (
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/mattn/go-isatty v0.0.12
-	golang.org/x/net v0.0.0-20200320220750-118fecf932d8 // indirect
-	golang.org/x/sys v0.0.0-20200321134203-328b4cd54aae // indirect
-	k8s.io/api v0.17.4
+	golang.org/x/net v0.0.0-20200519113804-d87ec0cfa476 // indirect
+	golang.org/x/sys v0.0.0-20200519105757-fe76b779f299 // indirect
+	gopkg.in/yaml.v2 v2.3.0 // indirect
+	k8s.io/api v0.18.2
 	k8s.io/client-go v11.0.0+incompatible
+	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
