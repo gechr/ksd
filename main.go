@@ -1,33 +1,72 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"strconv"
-	"strings"
 	"unicode"
 
-	"github.com/ghodss/yaml"
-	"github.com/mattn/go-isatty"
-	v1 "k8s.io/api/core/v1"
+	"golang.org/x/term"
+
+	"github.com/alecthomas/chroma"
+	"github.com/alecthomas/chroma/quick"
+	"github.com/alecthomas/chroma/styles"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/scheme"
+	"sigs.k8s.io/yaml"
 )
 
 func main() {
 	// Disable timestamp
 	log.SetFlags(0)
-	fmt.Print(highlight(parse(os.Stdin)))
+	registerStyle()
+	highlight(parse(os.Stdin))
 }
 
 func errFatal(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func registerStyle() {
+	styles.Fallback = styles.Register(
+		chroma.MustNewStyle(
+			"ksd",
+			chroma.StyleEntries{
+				chroma.Text:                "#f8f8f2",
+				chroma.Error:               "#960050 bg:#1e0010",
+				chroma.Comment:             "#75715e",
+				chroma.Keyword:             "#66d9ef",
+				chroma.KeywordNamespace:    "#f92672",
+				chroma.Operator:            "#f92672",
+				chroma.Punctuation:         "#f8f8f2",
+				chroma.Name:                "#f8f8f2",
+				chroma.NameAttribute:       "#a6e22e",
+				chroma.NameClass:           "#a6e22e",
+				chroma.NameConstant:        "#66d9ef",
+				chroma.NameDecorator:       "#a6e22e",
+				chroma.NameException:       "#a6e22e",
+				chroma.NameFunction:        "#a6e22e",
+				chroma.NameOther:           "#a6e22e",
+				chroma.NameTag:             "#f92672",
+				chroma.LiteralNumber:       "#ae81ff",
+				chroma.Literal:             "#e6db74",
+				chroma.LiteralDate:         "#e6db74",
+				chroma.LiteralString:       "#e6db74",
+				chroma.LiteralStringEscape: "#ae81ff",
+				chroma.GenericDeleted:      "#f92672",
+				chroma.GenericEmph:         "italic",
+				chroma.GenericInserted:     "#a6e22e",
+				chroma.GenericStrong:       "bold",
+				chroma.GenericSubheading:   "#75715e",
+				chroma.Background:          "bg:#272822",
+			},
+		),
+	)
 }
 
 func parse(r io.Reader) string {
@@ -38,12 +77,12 @@ func parse(r io.Reader) string {
 	errFatal(err)
 
 	switch o := obj.(type) {
-	case *v1.Secret:
+	case *corev1.Secret:
 		errFatal(yaml.Unmarshal(bytes, &o))
 		decode(o)
 		bytes, err = yaml.Marshal(o)
-	case *v1.List:
-		var oo v1.SecretList
+	case *corev1.List:
+		var oo corev1.SecretList
 		errFatal(yaml.Unmarshal(bytes, &oo))
 		decodeList(&oo)
 		bytes, err = yaml.Marshal(&oo)
@@ -73,7 +112,7 @@ func toStringData(b []byte) string {
 	return s
 }
 
-func decode(s *v1.Secret) {
+func decode(s *corev1.Secret) {
 	s.StringData = make(map[string]string, len(s.Data))
 	for k, v := range s.Data {
 		s.StringData[k] = toStringData(v)
@@ -81,30 +120,25 @@ func decode(s *v1.Secret) {
 	}
 }
 
-func decodeList(sl *v1.SecretList) {
+func decodeList(sl *corev1.SecretList) {
 	for i := range sl.Items {
 		decode(&sl.Items[i])
 	}
 }
 
-func highlight(input string) string {
-	if !isatty.IsTerminal(os.Stdout.Fd()) {
-		return input
+func highlight(data string) {
+	if !term.IsTerminal(int(os.Stdout.Fd())) {
+		fmt.Println(data)
+		return
 	}
-	bat, err := exec.LookPath("bat")
-	if err != nil {
-		return input
-	}
-	cmd := exec.Command(
-		bat,
-		"--color=always",
-		"--language=yaml",
-		"--paging=never",
-		"--plain",
+
+	errFatal(
+		quick.Highlight(
+			os.Stdout,
+			data,
+			"yaml",
+			"terminal16m",
+			"",
+		),
 	)
-	cmd.Stdin = strings.NewReader(input)
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	errFatal(cmd.Run())
-	return out.String()
 }

@@ -2,8 +2,6 @@
 
 `ksd` is a quick and handy tool to decode Kubernetes Secrets from standard input (JSON/YAML) and print as YAML.
 
-If [`bat`](https://github.com/sharkdp/bat) is installed, it will automatically be used for syntax highlighting.
-
 ## Installation
 
 ```sh
