@@ -1,18 +1,196 @@
 version: "2"
-
 linters:
   default: all
   disable:
-    - depguard
-    - forbidigo
-    - varnamelen
-    - wsl
-  settings:
-    revive:
-      rules:
-        - name: package-comments
-          disabled: true
+    - err113 # noisy
+    - errchkjson # noisy
+    - exhaustruct # noisy
+    - forbidigo # unnecessary
+    - funcorder # noisy
+    - funlen # noisy
+    - cyclop # noisy
+    - maintidx # noisy
+    - gochecknoglobals # lipgloss styles are globals
+    - gocognit # noisy
+    - gocyclo # noisy
+    - godot # noisy
+    - gomoddirectives # unnecessary
+    - inamedparam # noisy
+    - ireturn # noisy
+    - lll # noisy
+    - makezero # noisy
+    - nlreturn # noisy
+    - noinlineerr # unnecessary
+    - paralleltest # noisy
+    - perfsprint # noisy
+    - prealloc # noisy
+    - tagalign # broken
+    - tagliatelle # GitHub API uses camelCase
+    - varnamelen # noisy
+    - wrapcheck # noisy
+    - wsl # noisy
+    - wsl_v5 # noisy
 
+  settings:
+    tagalign:
+      strict: true
+      order:
+        - name
+        - help
+        - short
+        - aliases
+        - negatable
+        - placeholder
+        - desc
+        - complete
+        - arg
+        - optional
+        - hidden
+        - clib
+    cyclop:
+      max-complexity: 30
+      package-average: 10
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: github.com/davecgh/go-spew/spew
+              desc: debug packages should only be imported during development
+            - pkg: github.com/mitranim/gg/grepr
+              desc: debug packages should only be imported during development
+    errcheck:
+      check-type-assertions: true
+    exhaustive:
+      check:
+        - switch
+        - map
+    exhaustruct:
+      exclude:
+        - ^net/http.Client$
+        - ^net/http.Cookie$
+        - ^net/http.Request$
+        - ^net/http.Response$
+        - ^net/http.Server$
+        - ^net/http.Transport$
+        - ^net/url.URL$
+        - ^os/exec.Cmd$
+        - ^reflect.StructField$
+        - ^github.com/Shopify/sarama.Config$
+        - ^github.com/Shopify/sarama.ProducerMessage$
+        - ^github.com/mitchellh/mapstructure.DecoderConfig$
+        - ^github.com/prometheus/client_golang/.+Opts$
+        - ^github.com/spf13/cobra.Command$
+        - ^github.com/spf13/cobra.CompletionOptions$
+        - ^golang.org/x/tools/go/analysis.Analyzer$
+        - ^google.golang.org/protobuf/.+Options$
+        - ^gopkg.in/yaml.v3.Node$
+    funlen:
+      lines: -1
+      statements: 80
+    gocognit:
+      min-complexity: 40
+    gocritic:
+      settings:
+        captLocal:
+          paramsOnly: false
+        underef:
+          skipRecvDeref: false
+    gomodguard:
+      blocked:
+        modules:
+          - github.com/golang/protobuf:
+              recommendations:
+                - google.golang.org/protobuf
+              reason: see https://developers.google.com/protocol-buffers/docs/reference/go/faq#modules
+          - github.com/satori/go.uuid:
+              recommendations:
+                - github.com/google/uuid
+              reason: satori's package is not maintained
+          - github.com/gofrs/uuid:
+              recommendations:
+                - github.com/google/uuid
+              reason: gofrs' package is not go module
+    govet:
+      disable:
+        - fieldalignment
+      enable-all: true
+      settings:
+        printf:
+          funcs:
+            - (github.com/rs/zerolog.Event).Msgf
+        shadow:
+          strict: false
+    mnd:
+      ignored-functions:
+        - os.Chmod
+        - os.Mkdir
+        - os.MkdirAll
+        - os.OpenFile
+        - os.WriteFile
+        - prometheus.ExponentialBuckets
+        - prometheus.ExponentialBucketsRange
+        - prometheus.LinearBuckets
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+      allow-no-explanation:
+        - funlen
+        - gocognit
+        - lll
+    rowserrcheck:
+      packages:
+        - github.com/jmoiron/sqlx
+    tagliatelle:
+      case:
+        rules:
+          json: snake
+          yaml: snake
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - lll
+        source: ^//\s*go:generate\s
+      - linters:
+          - godot
+        source: (noinspection|TODO)
+      - linters:
+          - gocritic
+        source: //noinspection
+      - linters:
+          - errorlint
+        source: ^\s+if _, ok := err\.\([^.]+\.InternalError\); ok {
+      - linters:
+          - bodyclose
+          - dupl
+          - funlen
+          - gochecknoglobals
+          - goconst
+          - gosec
+          - lll
+          - noctx
+          - wrapcheck
+        path: _test\.go
+      - linters:
+          - cyclop
+        path: ^main\.go
+      - linters:
+          - gochecknoglobals
+        path: ^constant/version\.go
+      - linters:
+          - lll
+        path: ^config/config\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  max-same-issues: 50
 formatters:
   enable:
     - gci

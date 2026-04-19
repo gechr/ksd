@@ -34,7 +34,7 @@ func registerStyle() {
 	styles.Fallback = styles.Register(
 		chroma.MustNewStyle(
 			"ksd",
-			chroma.StyleEntries{
+			chroma.StyleEntries{ //nolint:exhaustive // style only overrides a subset of token types
 				chroma.Text:                "#f8f8f2",
 				chroma.Error:               "#960050 bg:#1e0010",
 				chroma.Comment:             "#75715e",
@@ -129,7 +129,7 @@ func decodeList(sl *corev1.SecretList) {
 }
 
 func highlight(data string) {
-	if !term.IsTerminal(int(os.Stdout.Fd())) {
+	if !term.IsTerminal(int(os.Stdout.Fd())) { //nolint:gosec // stdout fd always fits in int
 		fmt.Println(data)
 
 		return

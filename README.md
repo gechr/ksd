@@ -10,7 +10,7 @@ go install github.com/gechr/ksd@latest
 
 ## Usage
 
-```
+```text
 $ kubectl get secret  <name> -o (json|yaml) | ksd
 ```
 

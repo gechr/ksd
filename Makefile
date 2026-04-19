@@ -1,12 +1,24 @@
-install:
-	go install
+GO       ?= go
+GO_TOOLS ?= $(shell $(GO) tool | grep /)
 
+.PHONY: all
+all: fmt lint test
+
+.PHONY: fmt
+fmt:
+	@rumdl fmt --quiet
+	@$(GO) fix ./...
+	@$(GO) tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint fmt --enable=gci,golines,gofumpt
+
+.PHONY: lint
 lint:
-	golangci-lint run
+	@$(GO) tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint run
 
+.PHONY: test
+test:
+	@$(GO) test -timeout 2m -race ./...
+
+.PHONY: update
 update:
-	@rm -f -- go.sum
-	@go mod tidy
-	go get -u
-	@go build -o $(TMPDIR)/main
-	@git diff -- go.mod || :
+	@$(GO) get $(GO_TOOLS) $(shell $(GO) list -f '{{if not (or .Main .Indirect)}}{{.Path}}{{end}}' -m all)
+	@$(GO) mod tidy
