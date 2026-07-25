@@ -30,38 +30,52 @@ func errFatal(err error) {
 	}
 }
 
+const (
+	colorBackground = "#272822"
+	colorForeground = "#f8f8f2"
+
+	colorBlue    = "#66d9ef"
+	colorGreen   = "#a6e22e"
+	colorGrey    = "#75715e"
+	colorPink    = "#f92672"
+	colorPurple  = "#ae81ff"
+	colorRed     = "#960050"
+	colorRedDark = "#1e0010"
+	colorYellow  = "#e6db74"
+)
+
 func registerStyle() {
 	styles.Fallback = styles.Register(
 		chroma.MustNewStyle(
 			"ksd",
 			chroma.StyleEntries{ //nolint:exhaustive // style only overrides a subset of token types
-				chroma.Text:                "#f8f8f2",
-				chroma.Error:               "#960050 bg:#1e0010",
-				chroma.Comment:             "#75715e",
-				chroma.Keyword:             "#66d9ef",
-				chroma.KeywordNamespace:    "#f92672",
-				chroma.Operator:            "#f92672",
-				chroma.Punctuation:         "#f8f8f2",
-				chroma.Name:                "#f8f8f2",
-				chroma.NameAttribute:       "#a6e22e",
-				chroma.NameClass:           "#a6e22e",
-				chroma.NameConstant:        "#66d9ef",
-				chroma.NameDecorator:       "#a6e22e",
-				chroma.NameException:       "#a6e22e",
-				chroma.NameFunction:        "#a6e22e",
-				chroma.NameOther:           "#a6e22e",
-				chroma.NameTag:             "#f92672",
-				chroma.LiteralNumber:       "#ae81ff",
-				chroma.Literal:             "#e6db74",
-				chroma.LiteralDate:         "#e6db74",
-				chroma.LiteralString:       "#e6db74",
-				chroma.LiteralStringEscape: "#ae81ff",
-				chroma.GenericDeleted:      "#f92672",
+				chroma.Text:                colorForeground,
+				chroma.Error:               colorRed + " bg:" + colorRedDark,
+				chroma.Comment:             colorGrey,
+				chroma.Keyword:             colorBlue,
+				chroma.KeywordNamespace:    colorPink,
+				chroma.Operator:            colorPink,
+				chroma.Punctuation:         colorForeground,
+				chroma.Name:                colorForeground,
+				chroma.NameAttribute:       colorGreen,
+				chroma.NameClass:           colorGreen,
+				chroma.NameConstant:        colorBlue,
+				chroma.NameDecorator:       colorGreen,
+				chroma.NameException:       colorGreen,
+				chroma.NameFunction:        colorGreen,
+				chroma.NameOther:           colorGreen,
+				chroma.NameTag:             colorPink,
+				chroma.LiteralNumber:       colorPurple,
+				chroma.Literal:             colorYellow,
+				chroma.LiteralDate:         colorYellow,
+				chroma.LiteralString:       colorYellow,
+				chroma.LiteralStringEscape: colorPurple,
+				chroma.GenericDeleted:      colorPink,
 				chroma.GenericEmph:         "italic",
-				chroma.GenericInserted:     "#a6e22e",
+				chroma.GenericInserted:     colorGreen,
 				chroma.GenericStrong:       "bold",
-				chroma.GenericSubheading:   "#75715e",
-				chroma.Background:          "bg:#272822",
+				chroma.GenericSubheading:   colorGrey,
+				chroma.Background:          "bg:" + colorBackground,
 			},
 		),
 	)
@@ -129,7 +143,7 @@ func decodeList(sl *corev1.SecretList) {
 }
 
 func highlight(data string) {
-	if !term.IsTerminal(int(os.Stdout.Fd())) { //nolint:gosec // stdout fd always fits in int
+	if !term.IsTerminal(int(os.Stdout.Fd())) {
 		fmt.Println(data)
 
 		return
