@@ -1,6 +1,8 @@
 GO       ?= go
 GO_TOOLS ?= $(shell $(GO) list tool)
 
+GO_LDFLAGS ?= -s -w
+
 .PHONY: all
 all: fmt lint test
 
@@ -9,6 +11,10 @@ fmt:
 	@rumdl fmt --quiet
 	@$(GO) fix ./...
 	@$(GO) tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint fmt --enable=gci,golines,gofumpt
+
+.PHONY: install
+install:
+	@$(GO) install -ldflags "$(GO_LDFLAGS)"
 
 .PHONY: lint
 lint:
